@@ -1,0 +1,1 @@
+from .celery_tasks import fetch_and_save_prices
