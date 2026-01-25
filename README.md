@@ -100,3 +100,8 @@ deribit_test_task/
   - All: `curl "http://localhost:8000/api/all?ticker=btc_usd&page=&limit="`
   - Latest: `curl "http://localhost:8000/api/latest?ticker=eth_usd"`
   - By date: `curl "http://localhost:8000/api/by_date?ticker=btc_usd&start=&end=&page=&limit="`
+
+
+## Скриншоты работы приложения
+- [Главная страница](screenshots/homepage.png)
+- [Работа фоновых задач](screenshots/celery.png)

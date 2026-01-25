@@ -35,16 +35,10 @@ function displayLatest(elementId, price) {
 document.getElementById('all-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const ticker = document.getElementById('all-ticker').value;
-    let page = document.getElementById('all-page').value;
-    if (Number.isInteger(page)) {
-        page = 1
-    }
-    let limit = document.getElementById('all-limit').value;
-    if (Number.isInteger(limit)) {
-        limit = 5
-    }
+    const page = document.getElementById('all-page').value;
+    const limit = document.getElementById('all-limit').value;
     try {
-        const res = await fetch(`${API_BASE}all?ticker=${ticker}&page=${page}&limit=${limit}`);
+        const res = await fetch(`${API_BASE}all?ticker=${ticker}${page ? `&page=${page}` : ''}${limit ? `&limit=${limit}` : ''}`);
         if (!res.ok) throw new Error('API error');
         const data = await res.json();
         displayPrices('all-result', data);
