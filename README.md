@@ -103,5 +103,5 @@ deribit_test_task/
 
 
 ## Скриншоты работы приложения
-- [Главная страница](screenshots/homepage.png)
-- [Работа фоновых задач](screenshots/celery.png)
+![Главная страница](screenshots/homepage.png)
+![Работа фоновых задач](screenshots/celery.png)
