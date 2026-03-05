@@ -1,3 +1,7 @@
 venv/
 celerybeat-schedule
 __pycache__/
+.env
+versions/
+app.conf
+celerybeat-schedule

@@ -4,7 +4,7 @@ services:
     image: postgres:14
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       POSTGRES_DB: ${POSTGRES_DB:-deribit_db}
     ports:
@@ -12,7 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-user}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -37,7 +37,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-deribit_db}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-deribit_db}
       CELERY_BROKER_URL: redis://redis:6379/0
       DERIBIT_API_URL: ${DERIBIT_API_URL}
     ports:
@@ -57,7 +57,7 @@ services:
       app:
         condition: service_started
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-deribit_db}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-deribit_db}
       CELERY_BROKER_URL: redis://redis:6379/0
       DERIBIT_API_URL: ${DERIBIT_API_URL}
     volumes:
@@ -75,12 +75,36 @@ services:
       app:
         condition: service_started
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-deribit_db}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-deribit_db}
       CELERY_BROKER_URL: redis://redis:6379/0
       DERIBIT_API_URL: ${DERIBIT_API_URL}
     volumes:
       - .:/app
     command: celery -A celery_app beat --loglevel=info
+
+  auth_db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: casdoor_user
+      POSTGRES_PASSWORD: casdoor_password
+      POSTGRES_DB: casdoor_db
+    ports:
+      - "5433:5433"
+    volumes:
+      - postgres_data:/var/lib/postgresql/auth_data
+
+  casdoor:
+    image: casbin/casdoor-all-in-one
+    restart: always
+    ports:
+      - "3000:8000"
+    depends_on:
+      - auth_db
+    volumes:
+      - ./app.conf:/conf/app.conf
+    environment:
+      - RUNMODE=dev
 
 volumes:
   postgres_data:
