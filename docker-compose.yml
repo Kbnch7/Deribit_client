@@ -17,7 +17,7 @@ services:
       timeout: 3s
       retries: 10
 
-  redis:
+  redis_broker:
     image: redis:7
     restart: always
     ports:
@@ -28,38 +28,51 @@ services:
       timeout: 3s
       retries: 10
 
-  app:
+  redis_notifications:
+    image: redis:7
+    restart: always
+    ports:
+      - "6378:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  celery_notifications_worker:
     build: .
     restart: always
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
+      redis_notifications:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-deribit_db}
-      CELERY_BROKER_URL: redis://redis:6379/0
-      DERIBIT_API_URL: ${DERIBIT_API_URL}
-    ports:
-      - "8000:8000"
+      CELERY_BROKER_URL: redis://redis_notifications:6379/0
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A celery_app inspect ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - .:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: celery -A celery_app worker --loglevel=info
 
-  celery_worker:
+  celery_price_monitoring_worker:
     build: .
     restart: always
     depends_on:
       db:
         condition: service_healthy
-      redis:
+      redis_broker:
         condition: service_healthy
-      app:
-        condition: service_started
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-deribit_db}
-      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis_broker:6379/0
       DERIBIT_API_URL: ${DERIBIT_API_URL}
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A celery_app inspect ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - .:/app
     command: celery -A celery_app worker --loglevel=info
@@ -70,14 +83,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      redis:
+      redis_broker:
         condition: service_healthy
-      app:
-        condition: service_started
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-deribit_db}
-      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis_broker:6379/0
       DERIBIT_API_URL: ${DERIBIT_API_URL}
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A celery_app inspect ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - .:/app
     command: celery -A celery_app beat --loglevel=info
@@ -105,6 +121,30 @@ services:
       - ./app.conf:/conf/app.conf
     environment:
       - RUNMODE=dev
+
+  app:
+    build: .
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis_notifications:
+        condition: service_healthy
+      celery_price_monitoring_worker:
+        condition: service_healthy
+      celery_notifications_worker:
+        condition: service_healthy
+      casdoor:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-deribit_db}
+      CELERY_BROKER_URL: redis://redis_broker:6379/0
+      DERIBIT_API_URL: ${DERIBIT_API_URL}
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 volumes:
   postgres_data:
