@@ -90,9 +90,9 @@ services:
       POSTGRES_PASSWORD: casdoor_password
       POSTGRES_DB: casdoor_db
     ports:
-      - "5433:5433"
+      - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/auth_data
+      - casdoor_data:/var/lib/postgresql/data
 
   casdoor:
     image: casbin/casdoor-all-in-one
@@ -108,3 +108,4 @@ services:
 
 volumes:
   postgres_data:
+  casdoor_data:
