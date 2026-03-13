@@ -40,3 +40,9 @@ async def callback(code: str):
     )
 
     return response
+
+@auth_router.get("/logout")
+async def logout(response: Response):
+    response = RedirectResponse(url="/")
+    response.delete_cookie(key="jwt_token", path="/")
+    return response

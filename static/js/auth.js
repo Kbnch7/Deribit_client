@@ -14,14 +14,32 @@ function parseJwt(token) {
     }
 }
 
+function createLogoutButton(logoutUrl = "/api/auth/logout") {
+    console.log(123)
+    const auth_block = document.getElementById("auth-block")
+    const cardBody = document.createElement("div");
+    cardBody.className = "card-body text-center p-3";
+
+    const logoutLink = document.createElement("a");
+    logoutLink.href = logoutUrl;
+    logoutLink.id = "logout-button";
+    logoutLink.className = "text-secondary text-decoration-none fw-medium";
+    logoutLink.textContent = "Выйти из профиля";
+
+    cardBody.appendChild(logoutLink);
+    auth_block.appendChild(cardBody);
+
+    return auth_block;
+}
+
 window.onload = function() {
     const token = getCookie('jwt_token');
     if (token) {
         const userData = parseJwt(token);
         if (userData && userData.name) {
+            createLogoutButton()
             console.log(userData.name)
             const authBtn = document.getElementById('login-button');
-            
             if (authBtn) {
                 authBtn.innerText = `Аккаунт: ${userData.name}`;
                 authBtn.setAttribute("href", "#");
