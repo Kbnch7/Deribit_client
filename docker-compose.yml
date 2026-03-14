@@ -39,11 +39,25 @@ services:
       timeout: 3s
       retries: 10
 
+  rabbit:
+    image: rabbitmq:3-management
+    container_name: rabbit-mq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   celery_notifications_worker:
     build: .
     restart: always
     depends_on:
       redis_notifications:
+        condition: service_healthy
+      rabbit:
         condition: service_healthy
     environment:
       CELERY_BROKER_URL: redis://redis_notifications:6379/0
