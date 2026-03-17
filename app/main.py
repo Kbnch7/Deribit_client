@@ -1,9 +1,13 @@
 from fastapi import FastAPI
-from .api.endpoints import router as api_router
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+
+from .api import api_router, charts_router, auth_router
 from .database.models import Base
 from .database.session import engine
-from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
+
+import os
 
 
 Base.metadata.create_all(bind=engine)
@@ -22,4 +26,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def read_index():
+    return FileResponse(os.path.join("static", "index.html"))
+
+app.include_router(charts_router, prefix="/api/charts")
+app.include_router(auth_router, prefix="/api/auth")
 app.include_router(api_router, prefix="/api")

@@ -16,8 +16,23 @@ def get_latest_by_ticker(db: Session, ticker: str):
     return db.query(PriceRecord).filter(PriceRecord.ticker == ticker).order_by(desc(PriceRecord.timestamp)).first()
 
 def get_by_ticker_and_date(db: Session, ticker: str, start: int, limit: int, page: int, end: int = None):
-    query = db.query(PriceRecord).filter(PriceRecord.ticker == ticker, PriceRecord.timestamp >= start)
+    query = db.query(PriceRecord).filter(
+        PriceRecord.ticker == ticker,
+        PriceRecord.price.isnot(None) 
+    )
+    
+    if start:
+        query = query.filter(PriceRecord.timestamp >= start)
+        
     if end:
-        query = query.filter(PriceRecord.timestamp <= end)
+        query = query.filter(PriceRecord.timestamp < end)
+
+    query = query.order_by(desc(PriceRecord.timestamp))
+    
     query = query.offset((page - 1) * limit).limit(limit)
+    
     return query.all()
+
+def get_all_ticker_names(db: Session):
+    data = db.query(PriceRecord.ticker).distinct()
+    return data

@@ -1,25 +1,21 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel
+from fastapi import Depends, Query
 from sqlalchemy.orm import Session
+
 from ..database.session import get_db
 from ..database.crud import (
     get_all_by_ticker,
     get_latest_by_ticker,
-    get_by_ticker_and_date
+    get_by_ticker_and_date,
+    get_all_ticker_names
 )
+from ..schemas import PriceResponse, TickerName
+from fastapi import APIRouter
 
-router = APIRouter()
 
-class PriceResponse(BaseModel):
-    ticker: str
-    price: float
-    timestamp: int
+api_router = APIRouter()
 
-    class Config:
-        from_attributes = True
-
-@router.get("/all", response_model=List[PriceResponse])
+@api_router.get("/all", response_model=List[PriceResponse])
 def get_all(
     ticker: str = Query(..., description="Ticker symbol (e.g., btc_usd or eth_usd)"),
     page: int = Query(1, ge=1),
@@ -28,7 +24,7 @@ def get_all(
 ):
     return get_all_by_ticker(db, ticker, limit, page)
 
-@router.get("/latest", response_model=PriceResponse)
+@api_router.get("/latest", response_model=PriceResponse)
 def get_latest(
     ticker: str = Query(..., description="Ticker symbol (e.g., btc_usd or eth_usd)"),
     db: Session = Depends(get_db)
@@ -38,7 +34,7 @@ def get_latest(
         raise HTTPException(status_code=404, detail="No data found for this ticker")
     return latest
 
-@router.get("/by_date", response_model=List[PriceResponse])
+@api_router.get("/by_date", response_model=List[PriceResponse])
 def get_by_date(
     ticker: str = Query(..., description="Ticker symbol (e.g., btc_usd or eth_usd)"),
     start: int = Query(..., description="Start UNIX timestamp"),
@@ -48,3 +44,10 @@ def get_by_date(
     db: Session = Depends(get_db)
 ):
     return get_by_ticker_and_date(db, ticker, start, limit, page, end)
+
+@api_router.get("/tickers_list", response_model=List[TickerName])
+def get_all_tickers(
+    db: Session = Depends(get_db)
+):
+    ticker_names = get_all_ticker_names(db)
+    return [{"name": row.ticker} for row in ticker_names]
