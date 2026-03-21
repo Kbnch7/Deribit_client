@@ -17,7 +17,7 @@ charts_router = APIRouter()
 @charts_router.get("/linear", response_model=List[LinearPriceChart])
 def get_all_for_charts(
     ticker: str = Query(..., description="Ticker symbol"),
-    limit: int = Query(200, ge=1), # Увеличил лимит по умолчанию
+    limit: int = Query(200, ge=1),
     page: int = Query(1, ge=1),
     db: Session = Depends(get_db)
 ):

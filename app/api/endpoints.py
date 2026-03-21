@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import Depends, Query
+from fastapi import Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 
 from ..database.session import get_db
