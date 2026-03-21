@@ -57,10 +57,15 @@ services:
     depends_on:
       redis_notifications:
         condition: service_healthy
+      redis_broker:
+        condition: service_healthy
       rabbit:
         condition: service_healthy
     environment:
-      CELERY_BROKER_URL: redis://redis_notifications:6379/0
+      CELERY_BROKER_URL: redis://redis_broker:6379/0
+      REDIS_NOTIFICATIONS_URL: redis://redis_notifications:6379/0
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-deribit_db}
     healthcheck:
       test: ["CMD-SHELL", "celery -A celery_app inspect ping"]
       interval: 10s
@@ -68,7 +73,7 @@ services:
       retries: 5
     volumes:
       - .:/app
-    command: celery -A celery_app worker --loglevel=info
+    command: celery -A celery_app worker -Q notifications --loglevel=info
 
   celery_price_monitoring_worker:
     build: .
@@ -89,7 +94,7 @@ services:
       retries: 5
     volumes:
       - .:/app
-    command: celery -A celery_app worker --loglevel=info
+    command: celery -A celery_app worker -Q pricing --loglevel=info
 
   celery_beat:
     build: .

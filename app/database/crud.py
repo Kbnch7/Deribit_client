@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
-from .models import PriceRecord
+from .models import PriceRecord, Notification
 
 def create_price_record(db: Session, ticker: str, price: float, timestamp: int):
     record = PriceRecord(ticker=ticker, price=price, timestamp=timestamp)
@@ -36,3 +36,17 @@ def get_by_ticker_and_date(db: Session, ticker: str, start: int, limit: int, pag
 def get_all_ticker_names(db: Session):
     data = db.query(PriceRecord.ticker).distinct()
     return data
+
+def add_notification_to_db(db: Session, user_id: int, ticker: str, target_price: float, direction: str, payload: str):
+    notification = Notification(
+        user_id=user_id,
+        ticker=ticker,
+        target_price=target_price,
+        direction=direction,
+        payload=payload
+    )
+    db.add(notification)
+    db.commit()
+    db.refresh(notification)
+    return notification
+    

@@ -1,1 +1,2 @@
-from .celery_tasks import fetch_and_save_prices
+from .pricing_tasks import fetch_and_save_prices
+from .notifications_tasks import check_notifications
