@@ -23,8 +23,4 @@ def create_notification(
     if current_price is None:
         return HTTPException(status_code=404, detail="No data found for this ticker")
     payload, direction = add_notification_to_redis(redis, 123, notification_data.ticker, notification_data.target_price, current_price.price)
-    try:
-        add_notification_to_db(db, 123, notification_data.ticker, notification_data.target_price, direction, payload)
-    except Exception as e:
-        raise HTTPException(status_code=404, detail="Failed to push notification")
     return payload

@@ -14,3 +14,4 @@ CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 
 # Deribit API URL
 DERIBIT_API_URL = os.getenv("DERIBIT_API_URL", "https://www.deribit.com/api/v2/")
+
