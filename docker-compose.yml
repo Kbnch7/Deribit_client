@@ -50,6 +50,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  
+  tg-bot:
+    build: ./bot/
+    container_name: tg-bot
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    env_file:
+      - ./bot/.env
+    environment:
+      - RABBIT_HOST=rabbit
+    restart: always
 
   celery_notifications_worker:
     build: .

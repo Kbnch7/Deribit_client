@@ -1,4 +1,4 @@
-aio-pika
+aio-pika==9.6.2
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.3
 aiormq==6.9.3
@@ -17,9 +17,11 @@ click==8.3.1
 click-didyoumean==0.3.1
 click-plugins==1.1.1.2
 click-repl==0.3.0
+colorama==0.4.6
 dotenv==0.9.9
 fastapi==0.128.0
 frozenlist==1.8.0
+greenlet==3.4.0
 h11==0.16.0
 httpcore==1.0.9
 idna==3.11
@@ -41,6 +43,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
 redis==7.1.0
 requests==2.32.5
+ruff==0.15.12
 six==1.17.0
 SQLAlchemy==2.0.46
 starlette==0.50.0
