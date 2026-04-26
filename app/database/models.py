@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime
+from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 
@@ -19,7 +19,7 @@ class Notification(Base):
     user_id = Column(Integer, index=True, nullable=False)
     ticker = Column(String(20), index=True, nullable=False)
     target_price = Column(Float, nullable=False)
-    # direction = Column(String(10), nullable=False) 
+    direction = Column(String(10), nullable=False)
     payload = Column(String, unique=True, nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

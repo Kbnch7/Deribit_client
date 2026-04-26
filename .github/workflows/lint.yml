@@ -1,0 +1,23 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "task_for_college" , "main" ]
+  pull_request:
+    branches: [ "task_for_college" , "main" ]
+
+jobs:
+  ruff-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: set up ruff
+        run: |
+          pip install ruff
+          ruff check .

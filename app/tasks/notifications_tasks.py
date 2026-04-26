@@ -1,14 +1,14 @@
-from celery import shared_task
+import asyncio
+import json
+import os
+
 import aio_pika
 import redis
+from celery import shared_task
 
-from app.redis import get_notifications_from_redis
 from app.database.crud import get_latest_by_ticker
 from app.database.session import SessionLocal
-
-import os
-import json
-import asyncio
+from app.redis import get_notifications_from_redis
 
 rabbit_url = os.getenv("RABBITMQ_URL")
 tickers = os.getenv("TICKERS_NOTIFICATIONS").split(",")
@@ -22,17 +22,19 @@ async def async_check_notifications():
         channel = await connection.channel()
         async with channel:
             exchange = await channel.declare_exchange(
-                'notifications.exchange', 
+                'notifications.exchange',
                 aio_pika.ExchangeType.TOPIC,
                 durable=True
             )
-            
+
             queue = await channel.declare_queue('notifications.tg.queue', durable=True)
             await queue.bind(exchange, routing_key='notifications.*')
 
             for ticker in tickers:
                 price = get_latest_by_ticker(db, ticker)
-                notifications = get_notifications_from_redis(redis_client, ticker, price.price)
+                notifications = get_notifications_from_redis(
+                    redis_client, ticker, price.price
+                )
 
                 for notification in notifications:
                     notification_json = json.loads(notification)

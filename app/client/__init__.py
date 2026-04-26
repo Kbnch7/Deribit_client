@@ -1,1 +1,1 @@
-from .deribit_client import DeribitClient
+from .deribit_client import DeribitClient as DeribitClient

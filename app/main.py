@@ -1,20 +1,20 @@
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from fastapi.middleware.cors import CORSMiddleware
-
-from .api import api_router, charts_router, auth_router, notifications_router
-from .database.models import Base
-from .database.session import engine
-
 import os
 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+from .api import api_router, auth_router, charts_router, notifications_router
+from .database.models import Base
+from .database.session import engine
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Deribit Price API",
-    description="API for fetching and managing cryptocurrency index prices from Deribit",
+    description="API for fetching and managing \
+        cryptocurrency index prices from Deribit",
     version="1.0.0"
 )
 app.mount("/static", StaticFiles(directory="static"), name="static")

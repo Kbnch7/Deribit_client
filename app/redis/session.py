@@ -1,6 +1,6 @@
-import redis
-
 import os
+
+import redis
 
 redis_url = os.getenv('REDIS_NOTIFICATIONS_URL')
 

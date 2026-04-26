@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class CreateNotification(BaseModel):
     target_price: int
     ticker: str

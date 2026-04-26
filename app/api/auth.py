@@ -1,8 +1,9 @@
-from fastapi import FastAPI, Response, APIRouter
-from fastapi.responses import RedirectResponse
-import requests
 import os
+
+import requests
 from dotenv import load_dotenv
+from fastapi import APIRouter, Response
+from fastapi.responses import RedirectResponse
 
 load_dotenv()
 auth_router = APIRouter()
@@ -33,9 +34,9 @@ async def callback(code: str):
     response = RedirectResponse(url="/")
 
     response.set_cookie(
-        key="jwt_token", 
-        value=jwt_token, 
-        httponly=False, 
+        key="jwt_token",
+        value=jwt_token,
+        httponly=False,
         samesite="lax"
     )
 
