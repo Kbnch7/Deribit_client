@@ -20,10 +20,10 @@ jobs:
       - name: run bot tests
         run: |
           pip install -r bot/requirements.txt
-          pip install pytest httpx
+          pip install pytest httpx dotenv
           pytest bot/test_worker.py
       - name: run app tests
         run: |
           pip install -r requirements.txt
-          pip install pytest httpx
+          pip install pytest httpx dotenv
           pytest tests/
