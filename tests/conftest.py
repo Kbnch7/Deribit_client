@@ -5,9 +5,9 @@ from sqlalchemy.orm import sessionmaker
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
-from app.database.models import Base
-from app.database.session import get_db
-from app.main import app
+from app.database.models import Base # noqa
+from app.database.session import get_db # noqa
+from app.main import app # noqa
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
